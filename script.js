@@ -1,158 +1,417 @@
-if (sessionStorage.getItem("playlists") == null){
-    sessionStorage.setItem("playlists",JSON.stringify([]))
-};
-
-
-function buttonClick(btn) {
-    const activeBtn = document.querySelector(".active");
-    if (activeBtn !== null) {
-        activeBtn.classList.remove("active");
-    }
-    btn.classList.add("active");
-    if (document.getElementsByClassName("setime")[0].firstElementChild.firstElementChild.innerHTML !== "Set time"){
-        const playBtn = document.getElementById("play");
-        const saveBtn = document.getElementById("save");
-        playBtn.disabled=false;
-        playBtn.classList.remove("inactive");
-        saveBtn.disabled=false;
-        saveBtn.classList.remove("inactive");
-    }
-};
-
-if(document.getElementById("save")){
-    document.getElementById("save").onclick=  function() {
-    let mood = document.getElementsByClassName("active")[0];
-    if (typeof mood !== 'undefined') {
-        const time = document.getElementsByClassName("setime")[0].firstElementChild.firstElementChild.innerHTML;
-
-        const popup = document.getElementById("popup");
-        const popupTxt = document.createTextNode("Your playlist has been saved as " + mood.id + "_" + time + ".");
-        popup.appendChild(popupTxt);
-        console.log(popup.innerHTML)
-        popup.classList.add("open-popup");
-        setTimeout(function(){ popup.classList.remove("open-popup") ; popup.removeChild(popup.firstChild)},2000);
-
-        var data = JSON.parse(sessionStorage.getItem("playlists"));
-        console.log(data)
-        const newPlaylist = mood.id + "_" + time;
-        data.push(newPlaylist);
-        sessionStorage.setItem("playlists", JSON.stringify(data));
-    } else {
-        alert("Please select a mood");
-    }
-};}
-var buttonplay = document.getElementById("play-pause");
-function playpause() {
-    let inner= buttonplay.innerHTML;
-    console.log(inner)
-    if (inner == '<ion-icon name="caret-forward-outline" class="icons md hydrated" role="img" aria-label="caret forward outline"></ion-icon>'){
-        buttonplay.innerHTML = '<ion-icon name="pause-outline" class="icons"></ion-icon>';
-    }
-    else {
-        buttonplay.innerHTML = '<ion-icon name="caret-forward-outline" class="icons"></ion-icon>';
-    }
-    
-};
-
-function openPlaylists(){
-    const data = sessionStorage.getItem("playlists");
-    console.log(data)
-    const playlists = JSON.parse(data);
-    console.log(playlists)
-    for (i=0; i<playlists.length; i++){
-        let p = playlists[i];
-        let text = document.createTextNode(p);
-        let btn = document.createElement("button");
-
-        btn.appendChild(text);
-
-        document.getElementById("playlists").appendChild(btn);
-    }
-};
-
-//HORAS
-
-function display_c(){
-    var refresh=1000;
-    mytime=setTimeout('display_ct()',refresh);
-};
-    
-function display_ct() {
-    var x = new Date()
-    var hour=x.getHours();
-    var minute=x.getMinutes();
-    if(hour < 10 ) {hour='0'+hour;}
-    if(minute < 10 ) {minute='0' + minute;}
-    var x1 = hour+':'+minute;
-    document.getElementById("hour").innerHTML = x1;
-    display_c();
-};
-
-
-// Hour numbers
-const hourNumbers = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
-
-// Minute numbers
-const minuteNumbers = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55];
-
-// Default state
-let isHourSelected = true;
-if(document.querySelector("#clock")){
-    showHourNumbers();
-
-    // Click event listener for clock face
-    document.querySelector("#clock").addEventListener("click", (event) => {
-        const centerX = event.currentTarget.offsetLeft + event.currentTarget.offsetWidth / 2;
-        const centerY = event.currentTarget.offsetTop + event.currentTarget.offsetHeight / 2;
-        const angle = Math.atan2(event.pageY - centerY, event.pageX - centerX);
-        const degrees = angle * (180 / Math.PI) + 100;
-        const normalizedDegrees = (degrees + 360) % 360;
-  
-        document.getElementById("hand").style.transform = 'translateX(-50%) rotate(' + Math.floor(normalizedDegrees / 30) * 30 +'deg)';
-        if (isHourSelected) {
-          const hour = Math.floor(normalizedDegrees / 30);
-          selectedHour = hourNumbers[hour];
-          showMinuteNumbers();
-        } else {
-            const minute = Math.floor(normalizedDegrees / 30);
-            selectedMinute = minuteNumbers[minute];
-            sessionStorage.setItem("selectedHour", selectedHour);
-            sessionStorage.setItem("selectedMinute", selectedMinute);
-            window.location.href = 'create.html';
-        }
-  });
-    
+.background1 {
+  background-color: black;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-top: 15%;
+  margin-left: 35%;
+  height: 300px;
+  width: 300px;
+  border-radius: 10px;
 }
 
-const setimeButton = document.querySelector(".setime button");
-if (setimeButton && sessionStorage.getItem("selectedHour")) {
-    setimeButton.textContent = sessionStorage.getItem("selectedHour") + ':' + sessionStorage.getItem("selectedMinute");
+.arrow {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  color: white;
+  background: #2f313d;
+  box-shadow: inset 0px 4px 4px rgba(0, 0, 0, 0.25);
 }
 
-// Shows the hour numbers on the clock face
-function showHourNumbers() {
-    isHourSelected = true;
-    document.querySelector("#numbers").innerHTML = "";
-    hourNumbers.forEach((hour, index) => {
-      const numberElement = document.createElement("div");
-      numberElement.classList.add("number");
-      numberElement.innerText = hour;
-      numberElement.style.position = 'absolute';
-      numberElement.style.transform = `translate(-16px, -16px) rotate(${index * 30}deg) translate(0, -350%) rotate(-${index * 30}deg)`;
-      document.querySelector("#numbers").appendChild(numberElement);
-    });
-  }
-  
-  // Shows the minute numbers on the clock face
-  function showMinuteNumbers() {
-    isHourSelected = false;
-    document.querySelector("#numbers").innerHTML = "";
-    minuteNumbers.forEach((minute, index) => {
-      const numberElement = document.createElement("div");
-      numberElement.classList.add("number");
-      numberElement.innerText = minute;
-      numberElement.style.position = 'absolute';
-      numberElement.style.transform = `translate(-16px, -16px) rotate(${index * 30}deg) translate(0, -350%) rotate(-${index * 30}deg)`;
-      document.querySelector("#numbers").appendChild(numberElement);
-    });
-  }
+.arrow img {
+  color: blanchedalmond;
+}
+
+.album {
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+}
+
+.album img {
+  height: 130px;
+  width: 138px;
+  box-shadow: #2f313d;
+}
+
+.buttons {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  height: 30px;
+  width: 200px;
+  margin-bottom: 10px;
+  margin-top: 10px;
+}
+
+.buttons button {
+  height: 25px;
+  width: 25px;
+  border-radius: 2px;
+  background-color: #b4b6be;
+}
+
+.buttons button ion-icon {
+  height: 20px;
+  width: 20px;
+  margin-bottom: 5px;
+  margin-left: -3px;
+}
+
+.texto1 {
+  width: 300px;
+  color: white;
+  text-align: center;
+  font-size: 15px;
+}
+
+.background2 {
+  background-color: #253d56;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-top: 15%;
+  margin-left: 35%;
+  height: 300px;
+  width: 300px;
+  border-radius: 10px;
+}
+
+.texto2 {
+  width: 250px;
+  color: white;
+  margin-bottom: 30px;
+  font-size: 25px;
+  text-align: center;
+}
+
+.arrow2 {
+  height: 30px;
+  width: 30px;
+  border-radius: 5px;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 30px;
+}
+.arrow3 {
+  height: 30px;
+  width: 30px;
+  border-radius: 5px;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 15px;
+}
+
+.round1 button {
+  border-radius: 50%;
+  background-color: gray;
+}
+
+.round2 button {
+  border-radius: 50%;
+  background-color: white;
+}
+
+.texto3 {
+  width: 280px;
+  font-size: 20px;
+  color: white;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.backgroundoptions {
+  background-color: black;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 15%;
+  margin-left: 35%;
+  height: 300px;
+  width: 300px;
+  border-radius: 10px;
+}
+
+.backgroundoptions button {
+  width: 200px;
+  height: 50px;
+  font-size: 20px;
+  background-color: #2f313d;
+  color: white;
+  margin-bottom: 30px;
+  box-shadow: inset 0px 4px 4px rgba(0, 0, 0, 0.25);
+  border-radius: 10px;
+}
+
+#back{
+  width: 10px;
+  height: 10px;
+  margin-top: 5px;
+  margin-left: 5px;
+  box-shadow: none;
+  position: absolute;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  margin-top: 45px;
+}
+
+.container2 {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  margin-top: 20px;
+  overflow-y: scroll;
+  height: 250px;
+}
+
+.buttonsoptions {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 50px;
+  height: 20px;
+  width: 200px;
+  margin-bottom: 20px;
+}
+.buttonsoptions button {
+  color: aquamarine;
+}
+
+.backgroundplaylist {
+  background-color: black;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 300px;
+  margin-top: 15%;
+  margin-left: 35%;
+  height: 300px;
+  border-radius: 10px;
+}
+
+.backgroundplaylist button {
+  width: 35px;
+  height: 30px;
+  font-size: 25px;
+  border-radius: 10%;
+  color: whitesmoke;
+  margin-bottom: 30px;
+  background: #2f313d;
+  box-shadow: inset 0px 4px 4px rgba(0, 0, 0, 0.25);
+}
+
+.textoplaylist {
+  width: 300px;
+  display: flex;
+  justify-content: center;
+  align-self: center;
+  font-size: 20px;
+  color: white;
+  margin-top: 20px;
+}
+
+.setime {
+  margin-top: 25px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 50px;
+  width: 100px;
+}
+
+.setime button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 200px;
+  height: 50px;
+  background-color: #2f313d;
+  color: white;
+  margin-bottom: 30px;
+  box-shadow: inset 0px 4px 4px rgba(0, 0, 0, 0.25);
+  border-radius: 10px;
+}
+
+.buttonsoptions2 {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 50px;
+  height: 20px;
+  width: 200px;
+  margin-bottom: 20px;
+}
+
+.backgroundclock {
+  background-color: black;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-top: 15%;
+  margin-left: 35%;
+  height: 300px;
+  width: 300px;
+}
+
+.backgroundclock button {
+  width: 300px;
+  height: 50px;
+  font-size: x-large;
+  background-color: #2f313d;
+  color: whitesmoke;
+  margin-bottom: 10px;
+  box-shadow: inset 0px 4px 4px rgba(0, 0, 0, 0.25);
+  border-radius: 10px;
+}
+
+.buttonplaylist {
+  width: 300px;
+  height: 50px;
+  font-size: x-large;
+  background-color: #2f313d;
+  color: whitesmoke;
+  margin-bottom: 30px;
+  box-shadow: inset 0px 4px 4px rgba(0, 0, 0, 0.25);
+  border-radius: 10px;
+}
+
+a {
+  text-decoration: none;
+}
+
+body {
+  font-family: "Times New Roman", Times, serif;
+}
+#study.active {
+  background-color: gray;
+}
+#workout.active {
+  background-color: gray;
+}
+#party.active {
+  background-color: gray;
+}
+
+.icons {
+  font-size: 15px;
+  text-align: center;
+}
+
+#play.inactive {
+  background-color: #2f313d;
+}
+#save.inactive {
+  background-color: #2f313d;
+}
+.popup {
+  visibility: hidden;
+}
+.open-popup {
+  color: white;
+  background-color: black;
+  position: absolute;
+  justify-content: center;
+  align-items: center;
+  height: 300px;
+  width: 300px;
+  border-radius: 10px;
+  display: flex;
+  visibility: visible;
+  font-size: larger;
+  text-align: center;
+}
+
+#hour {
+  color: white;
+  background-color: #253d56;
+  display: flex;
+  justify-content: center;
+  height: 20px;
+  width: 300px;
+  border-radius: 10px 10px 0px 0px;
+  font-size: small;
+}
+
+/* width */
+::-webkit-scrollbar {
+  width: 0px;
+}
+
+#clock {
+  width: 280px;
+  height: 280px;
+  position: relative;
+  border-radius: 50%;
+  background-color: white;
+  box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1);
+  margin: 0 auto;
+  cursor: pointer;
+}
+
+.hand {
+  position: absolute;
+  width: 2px;
+  height: 80px;
+  background-color: black;
+  top: 14%;
+  left: 50%;
+  transform-origin: bottom center;
+  transform: translateX(-50%) rotate(0deg);
+}
+
+#hand {
+  height: 100px;
+  width: 4px;
+}
+
+#center {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: black;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+#numbers {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.number {
+  display: inline-block;
+  width: 30px;
+  height: 30px;
+  line-height: 30px;
+  text-align: center;
+  border-radius: 50%;
+  background-color: white;
+  border: 1px solid black;
+  margin-right: 10px;
+  cursor: pointer;
+}
+
+.selected {
+  background-color: black;
+  color: white;
+}
